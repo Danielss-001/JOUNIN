@@ -11,10 +11,12 @@
 //+------------------------------------------------------------------+
 //| Expert Advisor - Trading Bot                                     |
 //+------------------------------------------------------------------+
-#include "./include/TradeManager.mqh"                                          // Include of the TradeManager
+
+#include "./include/ControlBot.mqh"
 
 
-extern string text_in; 
+
+
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -22,11 +24,10 @@ extern string text_in;
 int OnInit()
   {
 //---
+   //DrawTextInGraph("Daniel is here!!");
    
+   int Magic_Number = 808;                                          // Private Number
    
-   
-   Print("the balance is: ", AccountBalance());
-   Print("The risk is: ",Risk());
    
 //---
    return(INIT_SUCCEEDED);
@@ -38,8 +39,14 @@ int OnInit()
 void OnTick()
   {
 //---
-    DrawTextInGraph(text_in);
+   OnTickControl();                                             // Method to implement all validation for each operation in ControlBot class
    
+   StopTake method = GetStopAndTake(0,1,2);
+   double risk = LotsSize(Risk(1),method.range);
+   
+   // Print("risk: ", risk);
+   // Print("Distance: ",method.range);
+   // Print("Range normalized: ",CalculateRangeNormalized());
   }
 
 
@@ -48,26 +55,10 @@ void OnTick()
 
 
 
-//////////////////////////////////////////////////////////////////////
-//+------------------------------------------------------------------+
-//|  Here, Put The differents functions (METHODS)                    |
-//+------------------------------------------------------------------+
-//////////////////////////////////////////////////////////////////////
 
-// This method Draw the text in the graph
-void DrawTextInGraph(string new_text,int distance_X = 10, int distance_Y = 30){
-   
-   // Create new object
-   bool obj_exist = ObjectCreate(0,"My Text Label",OBJ_LABEL,0,0,0);                            // Create a object with the type object
-   
-   if(obj_exist){                                                                               // Check if the object is created!
-      
-      // Config size and color object
-      ObjectSetText("My Text Label",new_text,15,"Arial",clrBlack);
-      
-      // Posicion text in the graph
-      ObjectSetInteger(0,"My Text Label",OBJPROP_CORNER,CORNER_LEFT_UPPER);                     // Corner Left Upper position
-   }
-}
+
+
+
+
 
 
