@@ -24,14 +24,14 @@ void OnTickControl(){
 
    if(OrdersTotal() == 0){
       
-       if(Price() > GetSMA(50) && GetRSI(14) > 50 && GetCCI(14) > 100){       // Test in BUY || Simulate perceptrons SubRed indicators "If is Buy" 
+       if(GetRSI(14) > 50 && GetCCI(14) > 70){       // Test in BUY || Simulate perceptrons SubRed indicators "If is Buy" 
          
-         op = 0;                                   // Here implement the enum(int) for use OP Order Properties. IMPORTANT 0 value is BUY
+         op = 0;                                      // Here implement the enum(int) for use OP Order Properties. IMPORTANT 0 value is BUY
          Print("Buy");
          
-         if(CalculateRangeNormalized() > 1.0){       // Here, calculate the volatility more that 1.0 high volatility
+         if(Low[1] < GetSMA(50) && Close[1] > GetSMA(50) && CalculateRangeNormalized() > 1.0){       // Here, calculate the volatility more that 1.0 high volatility
             
-            st = GetStopAndTake(op,2,2);           // Here, implement stop and take using the multiply parameters in the stop and take. REMEMBER the take control, multiply stop range
+            st = GetStopAndTake(op,1,2);           // Here, implement stop and take using the multiply parameters in the stop and take. REMEMBER the take control, multiply stop range
             risk = Risk(1.0);                      // Implement the risk per trade
             lots = LotsSize(risk,st.range);        // Here, implemenbt lotSize using the risk and range value in integers
             
@@ -40,25 +40,25 @@ void OnTickControl(){
             Print("Range normalized: ",CalculateRangeNormalized());
             
             
-            // OpenTrade(op,lots,st.stop,st.take,808);// Open order using variables
+            OpenTrade(op,lots,st.stop,st.take,808);// Open order using variables
             
          }
          else{                                     // Descarted order for low Volatility
          
-            Print("Descarted order, Low Volatility buy");// Descarted for Low Volatility 
+            Print("Descarted order, Low Volatility buy ",CalculateRangeNormalized());// Descarted for Low Volatility 
             
          }
          
        }
-       else if(Price() < GetSMA(50) && GetRSI(14) < 50 && GetCCI(14) < -100){  // Test in SELL || Simulate perceptrons SubRed indicators "If is Sell"
+       else if(GetRSI(14) < 50 && GetCCI(14) < -70){  // Test in SELL || Simulate perceptrons SubRed indicators "If is Sell"
            
            
-         op = 1;                                   // Here implement the enum(int) for use OP Order Properties. IMPORTANT 1 value is BUY
+         op = 1;                                   // Here implement the enum(int) for use OP Order Properties. IMPORTANT 1 value is SELL
          Print("Sell");
          
-         if(CalculateRangeNormalized() > 1.0){     // Here, Calculate the volatility more that 1.0 high volatility
+         if(High[1] > GetSMA(50) && Close[1] < GetSMA(50) && CalculateRangeNormalized() > 1.0){     // Here, Calculate the volatility more that 1.0 high volatility
                   
-            st = GetStopAndTake(op,2,2);           // Here, implement stop and take using the multiply parameters in the stop and take. REMEMBER the take control, multiply stop range
+            st = GetStopAndTake(op,30,3);           // Here, implement stop and take using the multiply parameters in the stop and take. REMEMBER the take control, multiply stop range
             risk = Risk(1.0);                      // Implement the risk per trade
             lots = LotsSize(risk,st.range);        // Here, implemenbt lotSize using the risk and range value in integers
          
@@ -66,12 +66,12 @@ void OnTickControl(){
             Print("Distance: ",st.range);
             Print("Range normalized: ",CalculateRangeNormalized());
                         
-            // OpenTrade(op,lots,st.stop,st.take,808);// Open order using variables
+            OpenTrade(op,lots,st.stop,st.take,808);// Open order using variables
          
          }
          else{                                      // Descarted order for low Volatility
          
-            Print("Descarted order, Low Volatility sell");// Descarted for Low Volatility 
+            Print("Descarted order, Low Volatility sell ", CalculateRangeNormalized());// Descarted for Low Volatility 
          
          }
          
