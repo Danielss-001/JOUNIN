@@ -44,25 +44,34 @@ int OnInit()
 void OnTick()
   {
 //---
-   //OnTickControl();                                             // Method to implement all validation for each operation in ControlBot class
+   OnTickControl();                                             // Method to implement all validation for each operation in ControlBot class
    
+   // Debug sell operation
+   //
    
-   StopTake method = GetStopAndTake(1,2,3);
-   if(High[1] > GetSMA(50) && Close[1] < GetSMA(50) && CalculateRangeNormalized() > 1.0){
+   //if(High[1] > GetSMA(50) && Close[1] < GetSMA(50) && CalculateRangeNormalized() > 1.0){
+   
+   //  StopTake method = GetStopAndTake(1,2,4);         // First: Calculate stop and take distance. Parameters: take and stop multiplier
       
-     Print("stop ", method.stop);
-     Print("take ", method.take);
-     Print("Bid ",Bid);
-     Print("range: ", method.range);
+   //  double risk = Risk(1.0);                         // Second: Here put risk in double.         Parameter: cant of risk in double 
+   //  double lotes = LotsSize(risk,method.range);      // Three: Lots size calc.                   Parameters: risk calc, pisp distance that result in "StopAndTake" method
      
-   }
+   //  OpenTrade(1,lotes,method.stop,method.take,808);  // Four: Open trade:                        Parameters: type order, lots, stop distance, take distance, magic number
+     
+   //}
    
+   //if(Low[1] < GetSMA(50) && Close[1] > GetSMA(50) && CalculateRangeNormalized() > 1.0){
    
-   // double risk = LotsSize(Risk(1),method.range);
+   //  StopTake method = GetStopAndTake(0,2,4);         // First: Calculate stop and take distance. Parameters: take and stop multiplier
+     
+   //  double risk = Risk(1.0);                         // Second: Here put risk in double.         Parameter: cant of risk in double 
+   //  double lotes = LotsSize(risk,method.range);      // Three: Lots size calc.                   Parameters: risk calc, pisp distance that result in "StopAndTake" method
+     
+   //  OpenTrade(0,lotes,method.stop,method.take,808);  // Four: Open trade:                        Parameters: type order, lots, stop distance, take distance, magic number
+     
+     
+   //}
    
-   // Print("risk: ", risk);
-   // Print("Distance: ",method.range);
-   // Print("Range normalized: ",CalculateRangeNormalized());
    
   }
 

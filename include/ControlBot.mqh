@@ -35,11 +35,6 @@ void OnTickControl(){
             risk = Risk(1.0);                      // Implement the risk per trade
             lots = LotsSize(risk,st.range);        // Here, implemenbt lotSize using the risk and range value in integers
             
-            Print("risk: ", lots);
-            Print("Distance: ",st.range);
-            Print("Range normalized: ",CalculateRangeNormalized());
-            
-            
             OpenTrade(op,lots,st.stop,st.take,808);// Open order using variables
             
          }
@@ -58,14 +53,10 @@ void OnTickControl(){
          
          if(High[1] > GetSMA(50) && Close[1] < GetSMA(50) && CalculateRangeNormalized() > 1.0){     // Here, Calculate the volatility more that 1.0 high volatility
                   
-            st = GetStopAndTake(op,30,3);           // Here, implement stop and take using the multiply parameters in the stop and take. REMEMBER the take control, multiply stop range
+            st = GetStopAndTake(op,1,2);           // Here, implement stop and take using the multiply parameters in the stop and take. REMEMBER the take control, multiply stop range
             risk = Risk(1.0);                      // Implement the risk per trade
             lots = LotsSize(risk,st.range);        // Here, implemenbt lotSize using the risk and range value in integers
-         
-            Print("risk: ", lots);
-            Print("Distance: ",st.range);
-            Print("Range normalized: ",CalculateRangeNormalized());
-                        
+                     
             OpenTrade(op,lots,st.stop,st.take,808);// Open order using variables
          
          }
