@@ -5,6 +5,7 @@
 #include "./TEST.mqh"
 #include "./TradeManager.mqh"                                                  // Include of the TradeManager
 #include "./Indicators.mqh"
+#include "./PerceptronsData.mqh"
 
 // Show anything data in init event bot
 void ShowData(int stop_Loss){
