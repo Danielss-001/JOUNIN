@@ -7,6 +7,8 @@
 #include "./Indicators.mqh"
 #include "./PerceptronsData.mqh"
 
+extern int EMA = 0;
+
 // Show anything data in init event bot
 void ShowData(int stop_Loss){
 
@@ -25,12 +27,12 @@ void OnTickControl(){
 
    if(OrdersTotal() == 0){
       
-       if(GetRSI(14) > 50 && GetCCI(14) > 70){       // Test in BUY || Simulate perceptrons SubRed indicators "If is Buy" 
+       if(RSIPerceptron() > 0.2 && CCIPerceptron() > 0.7){       // Test in BUY || Simulate perceptrons SubRed indicators "If is Buy" 
          
          op = 0;                                      // Here implement the enum(int) for use OP Order Properties. IMPORTANT 0 value is BUY
          Print("Buy");
          
-         if(Low[1] < GetSMA(50) && Close[1] > GetSMA(50) && CalculateRangeNormalized() > 1.0){       // Here, calculate the volatility more that 1.0 high volatility
+         if(Low[1] < GetSMA(50) && Close[1] > GetSMA(50) && ATRPerceptron() >= 1.0){       // Here, calculate the volatility more that 1.0 high volatility
             
             st = GetStopAndTake(op,1,2);           // Here, implement stop and take using the multiply parameters in the stop and take. REMEMBER the take control, multiply stop range
             risk = Risk(1.0);                      // Implement the risk per trade
@@ -46,13 +48,13 @@ void OnTickControl(){
          }
          
        }
-       else if(GetRSI(14) < 50 && GetCCI(14) < -70){  // Test in SELL || Simulate perceptrons SubRed indicators "If is Sell"
+       else if(RSIPerceptron() < -0.2 && CCIPerceptron() < -0.7){  // Test in SELL || Simulate perceptrons SubRed indicators "If is Sell"
            
            
          op = 1;                                   // Here implement the enum(int) for use OP Order Properties. IMPORTANT 1 value is SELL
          Print("Sell");
          
-         if(High[1] > GetSMA(50) && Close[1] < GetSMA(50) && CalculateRangeNormalized() > 1.0){     // Here, Calculate the volatility more that 1.0 high volatility
+         if(High[1] > GetSMA(50) && Close[1] < GetSMA(50) && ATRPerceptron() >= 1.0){     // Here, Calculate the volatility more that 1.0 high volatility
                   
             st = GetStopAndTake(op,1,2);           // Here, implement stop and take using the multiply parameters in the stop and take. REMEMBER the take control, multiply stop range
             risk = Risk(1.0);                      // Implement the risk per trade

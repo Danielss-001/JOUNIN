@@ -31,11 +31,14 @@
 int OnInit()
   {
 //---
-   //DrawTextInGraph("Daniel is here!!");
-   
    int Magic_Number = 808;                                        // Private Number
    
-   Print("RONIN!!"); 
+   // ----------------------------------------------------------------+
+   // Update Weights
+   ResetWeights();
+   InitWeights();                                                 // Method in PerceptronsData 
+   
+   Print("JOUNIN Daniels!!"); 
    
 //---
    return(INIT_SUCCEEDED);
@@ -48,8 +51,37 @@ void OnTick()
   {
 //---
    OnTickControl();                                             // Method to implement all validation for each operation in ControlBot class
+   double RSIn = RSIPerceptron();
+   double CCIn = CCIPerceptron();
+   double ATRn = ATRPerceptron();
    
-   Comment("Jounin " + IntegerToString(808) + "\nDaniels made fucker!" );
+   string comentary =  "Jounin " + "-" + IntegerToString(808) + "-" + 
+                       "\nDaniels: WIZARD SUPER CLASS!" + 
+                       "\n" +
+                       "\nRSI Network: " + DoubleToStr(RSIn) +
+                       "\nRSI WEIGHTS:" +
+                       "\nW1: " + DoubleToStr(w1) +
+                       "\nW2: " + DoubleToStr(w2) +
+                       "\nW3: " + DoubleToStr(w3) +
+                       "\nW4: " + DoubleToStr(w4) +
+                       "\n" + 
+                       "\nCCI Network: " + DoubleToStr(CCIn) +
+                       "\nCCI WEIGHTS:" +
+                       "\nW11: " + DoubleToStr(w11) +
+                       "\nW22: " + DoubleToStr(w22) +
+                       "\nW33: " + DoubleToStr(w33) +
+                       "\nW44: " + DoubleToStr(w44) +
+                       "\n" + 
+                       "\nATR Network: " + DoubleToStr(ATRn) +
+                       "\nATR WEIGHTS:" + 
+                       "\nW111: " + DoubleToStr(w111) +
+                       "\nW222: " + DoubleToStr(w222) +
+                       "\nW333: " + DoubleToStr(w333) +
+                       "\nW444: " + DoubleToStr(w444) 
+                       ;
+   
+   
+   Comment( comentary );
   
    
   }

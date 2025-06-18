@@ -12,7 +12,7 @@ double Price(){
 // Use a int value to implement different periods
 double GetSMA(int period){
    
-   return iMA(Symbol(),PERIOD_CURRENT,period,0,MODE_SMA,PRICE_CLOSE,0);       // Get iMA Move Avarage 
+   return iMA(Symbol(),PERIOD_CURRENT,period,0,MODE_SMA,PRICE_CLOSE,1);       // Get iMA Move Avarage 
    
 }
 
@@ -20,7 +20,7 @@ double GetSMA(int period){
 // This method is applicate in current period
 // Use a int value to implement different periods 
 double GetRSI(int period){
-
+   
    return iRSI(Symbol(),PERIOD_CURRENT,period,PRICE_CLOSE,0);                 // Get RSI 
 
 }
@@ -31,6 +31,13 @@ double GetRSI(int period){
 double GetCCI(int period){
 
    return iCCI(Symbol(),PERIOD_CURRENT,period,PRICE_CLOSE,0);                 // Get CCI 
+   
+}
+
+// ART function
+double GetATR(int period){
+
+   return iATR(Symbol(),PERIOD_CURRENT,period,0);
    
 }
 
