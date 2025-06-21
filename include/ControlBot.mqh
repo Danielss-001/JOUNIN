@@ -75,4 +75,99 @@ void OnTickControl(){
    
 }
 
+void OnRSI(){
+   
+   int op;
+   StopTake st;
+   double risk;
+   double lots;
+   
+   if(OrdersTotal() == 0){
+   
+      double signal = RSIPerceptron();
+      
+      if(signal > 0.3 ){                                 // Buy
+         
+         op = 0;                                         // Buy order type
+         Print("BUY!!");
+         
+         if(Low[1] < GetSMA(50) && Close[1] > GetSMA(50)){
+            
+            st   = (signal > 0.7) ? GetStopAndTake(op,1,2) : GetStopAndTake(op,1,1);      
+            risk = (signal > 0.7) ? Risk(2.0) : Risk(1.0);
+            lots = LotsSize(risk,st.range);
+            
+            OpenTrade(op,lots,st.stop,st.take,808);
+         }
+      }
+      if(signal < -0.3){                                 // Sell 
+         
+         op = 1;
+         Print("SELL!!");
+         
+         if(High[1] > GetSMA(50) && Close[1] < GetSMA(50)){
+            
+            st = (signal < -0.7) ? GetStopAndTake(op,1,2) : GetStopAndTake(op,1,1);       
+            risk = (signal < -0.7) ? Risk(2.0) : Risk(1.0);
+            lots = LotsSize(risk,st.range);
+            
+            OpenTrade(op,lots,st.stop,st.take,808);
+         }
+      }
+   
+   
+   }
+   
+
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void OnCCI(){
+   
+   int op;
+   StopTake st;
+   double risk;
+   double lots;
+   
+   if(OrdersTotal() == 0){
+   
+      double signal = CCIPerceptron();
+      
+      if(signal > 0.3 ){                                 // Buy Signal using CCI perceptron 
+         
+         op = 0;                                         // Buy order type
+         Print("BUY!!");
+         
+         if(Low[1] < GetSMA(50) && Close[1] > GetSMA(50)){
+            
+            st   = (signal > 0.7) ? GetStopAndTake(op,1,2) : GetStopAndTake(op,1,1);      
+            risk = (signal > 0.7) ? Risk(2.0) : Risk(1.0);
+            lots = LotsSize(risk,st.range);
+            
+            OpenTrade(op,lots,st.stop,st.take,808);
+         }
+      }
+      if(signal < -0.3){                                 // Sell 
+         
+         op = 1;
+         Print("SELL!!");
+         
+         if(High[1] > GetSMA(50) && Close[1] < GetSMA(50)){
+            
+            st = (signal < -0.7) ? GetStopAndTake(op,1,2) : GetStopAndTake(op,1,1);       
+            risk = (signal < -0.7) ? Risk(2.0) : Risk(1.0);
+            lots = LotsSize(risk,st.range);
+            
+            OpenTrade(op,lots,st.stop,st.take,808);
+         }
+      }
+   
+   
+   }
+   
+}
+
+
 #endif

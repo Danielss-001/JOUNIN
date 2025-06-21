@@ -8,10 +8,11 @@
 // inputs RSI perceptron
 
 // Weights ------------------------weights---------
-double w1 = 0.5;
-double w2 = 0.5;
-double w3 = 0.5;
-double w4 = 0.5;
+double w1   = 0.5;
+double w2   = 0.5;
+double w3   = 0.5;
+double w4   = 0.5;
+double bias = 0.1;
 // ------------------------------------------------
 
 double w11 = 0.5;
@@ -25,7 +26,27 @@ double w111 = 0.5;
 double w222 = 0.5;
 double w333 = 0.5;
 double w444 = 0.5;
-//---------------------------------------------------
+
+
+
+// Tahn Activation function return planar values in -1 or 1
+double TahnActivation(double _input){
+   
+   return (MathExp(_input) - MathExp(-_input)) / (MathExp(_input) + MathExp(-_input));
+
+}
+
+// Sigmoide function return values beetwen 0 or 1
+double SigmoideActivation(double _input){
+
+   return 1 / (1 + MathExp(-_input));
+
+}
+
+
+// --------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------- 
+// ----------------------------------------------------------------RSI-PERCEPTRON--
 double RSIPerceptron(){
    
    //  Inputs -------------------------inputs--------
@@ -37,23 +58,31 @@ double RSIPerceptron(){
    
    // Weighted Sum ---------------------Sum-----------
    double sumWeighted = a1*w1 + a2*w2 + a3*w3 + a4*w4;
-   double output = NormalizedRSI(sumWeighted);
+   double output = TahnActivation(sumWeighted);                                               // Than activation function
    
    // ------------------------------------------------
    
    // TRAINING...
-   double target =  (Close[1]<Close[0]) ? 1 : -1 ;    // If change price
-   double error  =  target - output;                  // Calculate error with target and output
-   double lr = 0.001;                                 // Learning rate
+   // Calculate target
+   
+   double diference = Close[0] - Close[1];
+   double threshold = Point * 10;                                                             // Here, implement the difference in price close with price close before candle
+   double target    = (diference > threshold) ? 1 : (diference < -threshold ? -1 : 0);        // If change price
+   
+   /////////////////////////////////////////////////////////////////////////////////////////////
+   
+   double error  =  target - output;                                                          // Calculate error with target and output
+   double lr     =  0.001;                                                                    // Learning rate
+   double delta  =  (target - output) * (1 - MathPow(output,2));                              // Derivade Tahn ::: Use for update weights
    
    
-   if( MathAbs(error) > UmbralAvg(error)){
+   if( target != 0 && MathAbs(error) > 0.2){
       
-      // Update weights
-      w1 += lr * error * a1; 
-      w2 += lr * error * a2;
-      w3 += lr * error * a3;  
-      w4 += lr * error * a4; 
+      // Update weights with tahn derivade
+      w1 += lr * delta * a1; 
+      w2 += lr * delta * a2;
+      w3 += lr * delta * a3;  
+      w4 += lr * delta * a4; 
    
       SaveWeightsRSI();
    }
@@ -61,120 +90,7 @@ double RSIPerceptron(){
    return output;
 }
 
-// ---------------------------------------------------
-// ---------------------------------------------------
-double CCIPerceptron(){
-   
-   // Inputs ----------------------------inputs-------
-   double a1 = NormalizedCCI(GetCCI(7));
-   double a2 = NormalizedCCI(GetCCI(14));
-   double a3 = NormalizedCCI(GetCCI(30));
-   double a4 = NormalizedCCI(GetCCI(50));
-   // ------------------------------------------------
-      
-   // Weighted Sum -------------------------Sum-------
-   double output = NormalizedCCI(a1*w11 + a2*w22 + a3*w33 + a4*w44);
-   // ------------------------------------------------
-   
-   // TRAINING...
-   double target = (Close[1]<Close[0]) ? 1 : -1;
-   double error  = target - output;
-   double lr     = 0.001;
-   
-   if(MathAbs(error) > UmbralAvg(error)){
-      
-      // Update Weights
-      w11 += lr * error * a1;
-      w22 += lr * error * a2;
-      w33 += lr * error * a3;
-      w44 += lr * error * a4;
-    
-      SaveWeightsCCI();
-   }
-   
-   return output;
-   
-}
 
-double ATRPerceptron(){
-
-   // Variable use for calculate means number
-   // Used for normalized inputs and calculate error 
-   double threshold = (Digits == 5 || Digits == 3) ? 0.0005 : 0.05;
-   
-   // Inputs -----------------------------inputs------
-   double a1 = NormalizedATR(GetATR(7));
-   double a2 = NormalizedATR(GetATR(14));
-   double a3 = NormalizedATR(GetATR(30));
-   double a4 = NormalizedATR(GetATR(50));
-   // -------------------------------------------------
-   
-   // Weighted Sum ------------------------------------
-   double output = NormalizedATR(a1 * w111 + a2 * w222 + a3 * w333 + a4 * w444);
-   
-   // TRAINING ----------------------------------------
-   double diff   = MathAbs(Close[1]-Close[2]);
-   double target = (diff >= threshold) ? 1 : -1;         // If difference price is major or equal to means number ? high volatily : Low volatily
-   double error  = target - output;                      // Calculate error
-   double lr = 0.001;
-   
-   if(MathAbs(error) > UmbralAvg(error)){                // If the error is major to umbral error recalculate weights
-      w111 += lr * error * a1;
-      w222 += lr * error * a2;
-      w333 += lr * error * a3;
-      w444 += lr * error * a4;
-      
-      SaveWeightsATR();
-   }
-    
-   
-   return output;  
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
-
-double NormalizedRSI(double RSI){
-   
-   double output = (RSI-50)/50;
-   
-   if (output < -1.0) output = -1;
-   if (output > 1.0) output = 1;
-   
-   return output;
-
-}
-
-// Normalized CCI 
-double NormalizedCCI(double CCI){
-   
-   double output = CCI/100;
-   
-   if(output < -1) output = -1;
-   if(output > 1)  output = 1;
-   
-   return output;
-}
-
-// Normalized ATR
-double NormalizedATR(double ATR){
-   // Variable use for calculate means number
-   // Used for normalized inputs and calculate error 
-   double threshold = (Digits == 5 || Digits == 3) ? 0.0005 : 0.05;
-   
-   double output = (ATR - threshold)/threshold;
-   if (output > 1.0)  output  = 1.0;
-   if (output < -1.0) output = -1.0;
-   
-   return output;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
 
 // Method Save Weights to RSI 
 void SaveWeightsRSI(){
@@ -182,6 +98,52 @@ void SaveWeightsRSI(){
    GlobalVariableSet("RSI_W2",w2);
    GlobalVariableSet("RSI_W3",w3);
    GlobalVariableSet("RSI_W4",w4);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// --------------------------------------------------------------------------------------------- //
+// --------------------------------------------------------------------------------------------- //
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// ----------------------------------------------------------------------------- CCI-Perceptron----
+double CCIPerceptron(){
+   
+   // Inputs ----------------------------inputs-------
+   double a1 = TahnActivation(GetCCI(7));
+   double a2 = TahnActivation(GetCCI(14));
+   double a3 = TahnActivation(GetCCI(30));
+   double a4 = TahnActivation(GetCCI(50));
+   // ------------------------------------------------
+      
+   // Weighted Sum -------------------------Sum-------
+   double SumWeighted = a1*w11 + a2*w22 + a3*w33 + a4*w44;
+   double output = TahnActivation(SumWeighted);
+   // ------------------------------------------------
+   
+   // TRAINING...
+   double diference = Close[0] - Close[1];
+   double threshold = Point * 10;
+   double target    = (diference > threshold) ? 1 : (diference < -threshold ? -1 : 0); 
+   
+   ///////////////////////////////////////////////////////////////////////////////////////
+   
+   double error  = target - output;
+   double lr     = 0.001;
+   double delta  = (target - output) * (1 - MathPow(output,2));
+   
+   if(target != 0 && MathAbs(error) > 0.2){
+      
+      // Update Weights
+      w11 += lr * delta * a1;
+      w22 += lr * delta * a2;
+      w33 += lr * delta * a3;
+      w44 += lr * delta * a4;
+    
+      SaveWeightsCCI();
+   }
+   
+   return output;
+   
 }
 
 // Method save weights to CCI
@@ -193,6 +155,57 @@ void SaveWeightsCCI(){
 
 }
 
+
+
+///////////////////////////////////////////////////////////////////////////////////////////
+// ------------------------------------------------------------------------------------- //
+// ------------------------------------------------------------------------------------- //
+///////////////////////////////////////////////////////////////////////////////////////////
+// --------------------------------------------------------------------ATR-Perceptron------
+double ATRPerceptron(){
+
+   // Variable use for calculate means number
+   // Used for normalized inputs and calculate error 
+   int scalar = 10000;
+   
+   // Inputs -----------------------------inputs------
+   double a1 = SigmoideActivation(GetATR(7) * scalar);
+   double a2 = SigmoideActivation(GetATR(14)* scalar);
+   double a3 = SigmoideActivation(GetATR(30)* scalar);
+   double a4 = SigmoideActivation(GetATR(50)* scalar);
+   // -------------------------------------------------
+   
+   // Weighted Sum ------------------------------------
+   double weightedSum = a1 * w111 + a2 * w222 + a3 * w333 + a4 * w444;
+   double output      =  SigmoideActivation(weightedSum);
+   
+   // Target ----------------------------------------
+   double avg_atr = (GetATR(7)+GetATR(14)+GetATR(30)+GetATR(50))/4;      // Means promedio beetwen all inputs
+   double move    = MathAbs(Close[0] - Close[1]);                        // diference in close price in actually candle and before clandle
+   double ratio   = move / (avg_atr + 0.00001);                          // Is add 0.00001, prevent divide in zero 
+   double target  = (ratio > 1.5 ) ? 1 : (ratio < 0.5 ? 0 : 0.5);        // 
+    
+   // TRAINING -------------------------------------------
+   double error = target - output;                      // Calculate error
+   double lr    = 0.001;
+   double delta = (target - output) * output * (1 - output);
+   
+   
+   if( target != 0 && MathAbs(error) > 0.2){                // If the error is major to umbral error recalculate weights
+      w111 += lr * delta * a1;
+      w222 += lr * delta * a2;
+      w333 += lr * delta * a3;
+      w444 += lr * delta * a4;
+      
+      SaveWeightsATR();
+   }
+    
+   
+   return output;  
+}
+
+
+// Here save weights 
 void SaveWeightsATR(){
    GlobalVariableSet("ATR_W111", w111);
    GlobalVariableSet("ATR_W222", w222);
@@ -200,6 +213,20 @@ void SaveWeightsATR(){
    GlobalVariableSet("ATR_W444", w444);
    
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 
 // Init weights Method 
 void InitWeights(){
@@ -240,27 +267,6 @@ void ResetWeights(){
    w444 = 0.5; GlobalVariableSet("ATR_W444",w444);
 }
 
-// Avarage Media error
-// Use for umbral update weights
-double UmbralAvg(double error){
-   
-   double avg_error   =  0.0;
-   double alpha       =  0.1;
-   
-   // In each tick
-   avg_error = (1 - alpha) * avg_error + alpha * MathAbs(error);
-   
-   return avg_error;
-   
-}
-
-
-// Sigmoide Method
-double Sigmoide(double x){
-   if(x < -10)  return 0.0;
-   if(x >  10)  return 1.0;
-   return 1.0 / (1.0 + MathExp(-x));
-}
 //---------------------------------------------------
 
 
