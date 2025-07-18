@@ -35,7 +35,7 @@ int OnInit()
    
    // ----------------------------------------------------------------+
    // Update Weights
-   ResetWeights();
+   // ResetWeights();
    InitWeights();                                                 // Method in PerceptronsData 
    
    Print("JOUNIN Daniels!!"); 
@@ -51,13 +51,18 @@ void OnTick()
   {
 //---
    // OnTickControl();                                             // Method to implement all validation for each operation in ControlBot class
-   // OnRSI();
+   
    double RSIn = RSIPerceptron();
    double CCIn = CCIPerceptron();
    double ATRn = ATRPerceptron();
    
+   //OnRSI();
+   OnCCI();
+   
    string comentary =  "Jounin Testing Perceptrons RSI | CCI | ATR" + ".-." + IntegerToString(808) + ".-." + 
-                       "\nDaniels: WIZARD SUPER CLASS!" + 
+                       "\nDaniels: WIZARD SUPER CLASS!_! " + "Month: " + IntegerToString(GlobalVariableGet("LastMonth")) + " Day: " + IntegerToString(GlobalVariableGet("LastDay")) +
+                       "\nThis is active session: " + IntegerToString(SessionHour(ActiveSesion)) +  
+                       "\nCan Operate: " + IntegerToString(CanOperate) +
                        "\n" +
                        "\nRSI Network: " + DoubleToStr(RSIn) +
                        "\nRSI WEIGHTS:" +

@@ -6,8 +6,9 @@
 #include "./TradeManager.mqh"                                                  // Include of the TradeManager
 #include "./Indicators.mqh"
 #include "./PerceptronsData.mqh"
+#include "./Schedule.mqh"
 
-extern int EMA = 0;
+extern int EMA = 50;                                  //Here is the EMA value.
 
 // Show anything data in init event bot
 void ShowData(int stop_Loss){
@@ -18,62 +19,11 @@ void ShowData(int stop_Loss){
 }
 
 // Here, Find method control a open or manage orders
-void OnTickControl(){
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   int op;
-   StopTake st;
-   double risk;
-   double lots;
-
-   if(OrdersTotal() == 0){
-      
-       if(RSIPerceptron() > 0.2 && CCIPerceptron() > 0.7){       // Test in BUY || Simulate perceptrons SubRed indicators "If is Buy" 
-         
-         op = 0;                                      // Here implement the enum(int) for use OP Order Properties. IMPORTANT 0 value is BUY
-         Print("Buy");
-         
-         if(Low[1] < GetSMA(50) && Close[1] > GetSMA(50) && ATRPerceptron() >= 1.0){       // Here, calculate the volatility more that 1.0 high volatility
-            
-            st = GetStopAndTake(op,1,2);           // Here, implement stop and take using the multiply parameters in the stop and take. REMEMBER the take control, multiply stop range
-            risk = Risk(1.0);                      // Implement the risk per trade
-            lots = LotsSize(risk,st.range);        // Here, implemenbt lotSize using the risk and range value in integers
-            
-            OpenTrade(op,lots,st.stop,st.take,808);// Open order using variables
-            
-         }
-         else{                                     // Descarted order for low Volatility
-         
-            Print("Descarted order, Low Volatility buy ",CalculateRangeNormalized());// Descarted for Low Volatility 
-            
-         }
-         
-       }
-       else if(RSIPerceptron() < -0.2 && CCIPerceptron() < -0.7){  // Test in SELL || Simulate perceptrons SubRed indicators "If is Sell"
-           
-           
-         op = 1;                                   // Here implement the enum(int) for use OP Order Properties. IMPORTANT 1 value is SELL
-         Print("Sell");
-         
-         if(High[1] > GetSMA(50) && Close[1] < GetSMA(50) && ATRPerceptron() >= 1.0){     // Here, Calculate the volatility more that 1.0 high volatility
-                  
-            st = GetStopAndTake(op,1,2);           // Here, implement stop and take using the multiply parameters in the stop and take. REMEMBER the take control, multiply stop range
-            risk = Risk(1.0);                      // Implement the risk per trade
-            lots = LotsSize(risk,st.range);        // Here, implemenbt lotSize using the risk and range value in integers
-                     
-            OpenTrade(op,lots,st.stop,st.take,808);// Open order using variables
-         
-         }
-         else{                                      // Descarted order for low Volatility
-         
-            Print("Descarted order, Low Volatility sell ", CalculateRangeNormalized());// Descarted for Low Volatility 
-         
-         }
-         
-       }    
-   }
-   
-   
-}
 
 void OnRSI(){
    
@@ -82,40 +32,63 @@ void OnRSI(){
    double risk;
    double lots;
    
-   if(OrdersTotal() == 0){
+   // This call schedule function limits and manage money
+   ScheduleTick();
    
-      double signal = RSIPerceptron();
+   if(OrdersTotal() == 0){             
+      if(CanOperate){          // If is session active and CanOPerate
+   
+         double signal     = RSIPerceptron();
+         double volatility = ATRPerceptron();
       
-      if(signal > 0.3 ){                                 // Buy
+         string comment;
          
-         op = 0;                                         // Buy order type
-         Print("BUY!!");
+         if(signal > 0.5 ){                                 // Buy perceptron
          
-         if(Low[1] < GetSMA(50) && Close[1] > GetSMA(50)){
+            op = 0;                                         // Buy order type
+            Print("BUY!!");
+         
+            if(volatility > 0.3 && volatility < 0.8){       // ATR Perceptron
+         
+         
+               if(Low[1] < GetSMA(EMA) && Close[1] > GetSMA(EMA)){
             
-            st   = (signal > 0.7) ? GetStopAndTake(op,1,2) : GetStopAndTake(op,1,1);      
-            risk = (signal > 0.7) ? Risk(2.0) : Risk(1.0);
-            lots = LotsSize(risk,st.range);
-            
-            OpenTrade(op,lots,st.stop,st.take,808);
+                  st   = (signal > 0.7) ? GetStopAndTake(op,1,2) : GetStopAndTake(op,1,1);      
+                  risk = (signal > 0.7) ? Risk(2.0) : Risk(1.0);
+                  lots = LotsSize(risk,st.range);
+                  
+                  // Comment CCI entire
+                  comment = StringFormat("RSI:%.2f ATR=%.2f", signal, volatility);
+                  
+                  OpenTrade(op,lots,st.stop,st.take,comment,808);
+               }
+            }
          }
-      }
-      if(signal < -0.3){                                 // Sell 
+      
+         // SELL SIGNAL
+         if(signal < -0.5){                                 // Sell perceptron
          
-         op = 1;
-         Print("SELL!!");
+            op = 1;
+            Print("SELL!!");
          
-         if(High[1] > GetSMA(50) && Close[1] < GetSMA(50)){
+            if(volatility > 0.3 && volatility < 0.8){       // Volatility perceptron
+         
+               if(High[1] > GetSMA(EMA) && Close[1] < GetSMA(EMA)){
             
-            st = (signal < -0.7) ? GetStopAndTake(op,1,2) : GetStopAndTake(op,1,1);       
-            risk = (signal < -0.7) ? Risk(2.0) : Risk(1.0);
-            lots = LotsSize(risk,st.range);
-            
-            OpenTrade(op,lots,st.stop,st.take,808);
+                  st = (signal < -0.7) ? GetStopAndTake(op,1,2) : GetStopAndTake(op,1,1);       
+                  risk = (signal < -0.7) ? Risk(2.0) : Risk(1.0);
+                  lots = LotsSize(risk,st.range);
+                  
+                  // Comment CCI entire
+                  comment = StringFormat("RSI:%.2f ATR=%.2f", signal, volatility);
+                  
+                  OpenTrade(op,lots,st.stop,st.take,comment,808);
+               }
+            }
          }
-      }
    
    
+      }
    }
    
 
@@ -131,43 +104,62 @@ void OnCCI(){
    double risk;
    double lots;
    
-   if(OrdersTotal() == 0){
+   // limits and money control
+   ScheduleTick();
    
-      double signal = CCIPerceptron();
-      
-      if(signal > 0.3 ){                                 // Buy Signal using CCI perceptron 
+   if(CanOperate){          // If CanOPerate
+      if(OrdersTotal() == 0){
+   
+         double signal     = CCIPerceptron();
+         double volatility = ATRPerceptron();
          
-         op = 0;                                         // Buy order type
-         Print("BUY!!");
+         string comment;
          
-         if(Low[1] < GetSMA(50) && Close[1] > GetSMA(50)){
+         if(signal > 0.5){                                 // Buy Signal using CCI perceptron 
+         
+            op = 0;                                         // Buy order type
+            Print("BUY!!");
+         
+            if(volatility > 0.3 && volatility < 0.8){
+         
+               if(Low[1] < GetSMA(EMA) && Close[1] > GetSMA(EMA)){
             
-            st   = (signal > 0.7) ? GetStopAndTake(op,1,2) : GetStopAndTake(op,1,1);      
-            risk = (signal > 0.7) ? Risk(2.0) : Risk(1.0);
-            lots = LotsSize(risk,st.range);
-            
-            OpenTrade(op,lots,st.stop,st.take,808);
+                  st   = (signal > 0.7) ? GetStopAndTake(op,1,2) : GetStopAndTake(op,1,1);      // signal > 0.7
+                  risk = Risk(1.0);                                                             // signal > 0.7
+                  lots = LotsSize(risk,st.range);
+                  
+                  // Comment CCI entire
+                  comment = StringFormat("CCI:%.2f ATR=%.2f", signal, volatility);
+                  
+                  OpenTrade(op,lots,st.stop,st.take,comment,808);
+               }
+            }
          }
-      }
-      if(signal < -0.3){                                 // Sell 
+         if(signal < -0.5){                                 // Sell perceptron
          
-         op = 1;
-         Print("SELL!!");
+            op = 1;
+            Print("SELL!!");
          
-         if(High[1] > GetSMA(50) && Close[1] < GetSMA(50)){
+            if(volatility > 0.3 && volatility < 0.8){       // Volatility perceptron
+         
+               if(High[1] > GetSMA(EMA) && Close[1] < GetSMA(EMA)){
             
-            st = (signal < -0.7) ? GetStopAndTake(op,1,2) : GetStopAndTake(op,1,1);       
-            risk = (signal < -0.7) ? Risk(2.0) : Risk(1.0);
-            lots = LotsSize(risk,st.range);
-            
-            OpenTrade(op,lots,st.stop,st.take,808);
+                  st   = (signal < -0.7) ? GetStopAndTake(op,1,2) : GetStopAndTake(op,1,1);       // signal < - 0.7
+                  risk = Risk(1.0);                                                               // signal < - 0.7
+                  lots = LotsSize(risk,st.range);
+                  
+                  // Comment CCI entire
+                  comment = StringFormat("CCI:%.2f ATR=%.2f", signal, volatility);
+                  
+                  OpenTrade(op,lots,st.stop,st.take,comment,808);
+               }
+            }
          }
+   
+   
       }
-   
-   
    }
    
 }
-
 
 #endif
